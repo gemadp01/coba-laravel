@@ -1,39 +1,88 @@
 @extends('layouts.main')
 
 @section('container')
-<h1 class="mb-5">{{ $title }}</h1>
-@foreach ($posts as $post)
-<article class="mb-5 border-bottom pb-4">
-    <h2>
-        <a href="/posts/{{ $post->slug }}" class="text-decoration-none">{{ $post->title }}</a>
-    </h2>
-    <p>By. <a href="/authors/{{ $post->author->username }}">{{ $post->author->name }}</a> in <a
-            href="/categories/{{ $post->category->slug }}" class="text-decoration-none">{{
-            $post->category->name }}</a></p>
-    <p>{{ $post->excerpt }}</p>
-    <a href="/posts/{{ $post->slug }}" class="text-decoration-none">Read more...</a>
-</article>
+<h1 class="mb-3 text-center">{{ $title }}</h1>
+
+<div class="row justify-content-center  mb-3">
+    <div class="col-md-6">
+        <form action="/posts">
+            @if (request('category'))
+                <input type="hidden" name="category" value="{{ request('category') }}">
+            @elseif (request('author'))
+                <input type="hidden" name="author" value="{{ request('author') }}">
+            @endif
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="search" placeholder="Search.."
+                    value="{{ request('search') }}">
+                <button class="btn btn-danger" type="submit"">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 
 
-@endforeach
-@endsection
+@if ($posts->count())
+<div class=" card mb-3">
+                    <img src="https://source.unsplash.com/1200x400?{{ $posts[0]->category->name }}" class="card-img-top"
+                        alt="{{ $posts[0]->category->name }}">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">
+                            <a href="/posts/{{ $posts[0]->slug }}" class="text-decoration-none text-dark">{{
+                                $posts[0]->title }}</a>
+                        </h3>
+                        <small class="text-body-secondary">
+                            <p>By.
+                                <a href="/posts?author={{ $posts[0]->author->username }}">{{ $posts[0]->author->name }}</a>
+                                in
+                                <a href="/posts?category={{ $posts[0]->category->slug }}" class="text-decoration-none">{{
+                                    $posts[0]->category->name }} </a>{{ $posts[0]->created_at->diffForHumans() }}
+                            </p>
+                            <p class="card-text">{{ $posts[0]->excerpt }}</p>
 
-{{-- Post::create([
-'title' => 'Judul Ke Kelima',
-'slug' => 'judul-Ke-Kelima',
-'excerpt' => 'Lorem Ipsum Kelima',
-'body' => '<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam, totam! Necessitatibus vero repellat
-    veniam, vel laborum repellendus. Suscipit, magni earum.</p>
-<p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium fugit suscipit eaque nemo eius, tenetur libero
-    quod harum! Magnam, error labore ad et soluta reprehenderit cupiditate inventore culpa corporis laborum, animi,
-    tempora id ipsa molestias voluptates debitis velit. Nulla recusandae beatae corrupti. Eaque enim explicabo quidem
-    odio, ut dolores porro exercitationem facere magni necessitatibus eligendi ea laboriosam ex, ipsum quaerat ratione
-    totam ipsa! Delectus voluptatum voluptatem, quibusdam laboriosam totam beatae quam, blanditiis cupiditate hic
-    nesciunt accusamus nobis dolorum dolores eveniet laborum alias modi, obcaecati iste veniam deleniti esse eos
-    corporis. Ea nemo quis numquam sed enim earum temporibus facere</p>
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illum sapiente at nihil deleniti illo magni obcaecati
-    itaque vel non molestias quaerat odio animi, corporis totam ipsa, quidem quisquam, nesciunt perspiciatis. Dicta, ex,
-    repellendus eum mollitia ut repellat possimus assumenda animi blanditiis id facere! Eum necessitatibus id, deleniti
-    natus ea repellendus!</p>'
-]) --}}
+                            <a href="/posts/{{ $posts[0]->slug }}" class="text-decoration-none btn btn-primary">Read
+                                more</a>
+                        </small>
+                    </div>
+            </div>
+
+
+
+            <div class="container">
+                <div class="row">
+                    @foreach ($posts->skip(1) as $post)
+
+
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="position-absolute px-3 py-2 text-white"
+                                style="background-color: rgba(0,0,0,.7)">
+                                <a href="/posts?category{{ $post->category->slug }}" class="text-white text-decoration-none">
+                                    {{$post->category->name }}
+                                </a>
+                            </div>
+                            <img src="https://source.unsplash.com/500x400?{{ $post->category->name }}"
+                                class=" card-img-top" alt="{{ $post->category->name }}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ $post->title }}</h5>
+                                <p>By.
+                                    <a href="/posts?author={{ $post->author->username }}">{{ $post->author->name }}</a>{{
+                                    $post->created_at->diffForHumans() }}
+                                </p>
+                                <p class="card-text">{{ $post->excerpt }}</p>
+                                <a href="{{ $post->slug }}" class="btn btn-primary">Read more</a>
+                            </div>
+                        </div>
+                    </div>
+            @endforeach
+                </div>
+            </div>
+            @else
+            <p class="text-center fs-4">No Posts Found.</p>
+            @endif
+
+            <div class="d-flex justify-content-end">
+                {{ $posts->links() }}
+            </div>
+
+            @endsection
